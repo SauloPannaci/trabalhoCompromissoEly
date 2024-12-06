@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="ISO-8859-1">
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+			integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+			crossorigin="anonymous">
+		<title>Insert title here</title>
+	</head>
+	<body>
+		<h1>Cadastro</h1>
+			<div class="input-group mb-3">
+				<button type="button" class="btn btn-primary" onclick="novo()">Novo</button> 
+			  	<input type="text" class="form-control" placeholder="Pesquisa" aria-label="Pesquisa" aria-describedby="button-addon2" id="pesquisa">
+			  	<button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="listar()">Pesquisa</button>
+			</div>
+		
+		<div id="resposta"></div>
+	
+		<div class="modal fade" id="formulario" tabindex="-1"
+			aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="exampleModalLabel">Cadastro</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+	
+						<div class="input-group mb-3">
+							<span class="input-group-text" id="inputGroup-sizing-default">Descrição:</span>
+							<input id="descricao" type="text" class="form-control"
+								aria-label="Sizing example input"
+								aria-describedby="inputGroup-sizing-default">
+						</div>
+						<div class="input-group mb-3">
+							<span class="input-group-text" id="inputGroup-sizing-default">Data de Inicio:</span>
+							<input id="datainicio" type="text" class="form-control"
+								aria-label="Sizing example input"
+								aria-describedby="inputGroup-sizing-default">
+						</div>
+						<div class="input-group mb-3">
+							<span class="input-group-text" id="inputGroup-sizing-default">Data Final:</span>
+							<input id="datafim" type="text" class="form-control"
+								aria-label="Sizing example input"
+								aria-describedby="inputGroup-sizing-default">
+						</div>
+						<div class="input-group mb-3">
+							<span class="input-group-text" id="inputGroup-sizing-default">Local:</span>
+							<input id="local" type="text" class="form-control"
+								aria-label="Sizing example input"
+								aria-describedby="inputGroup-sizing-default">
+						</div>
+						<div class="input-group mb-3">
+							<span class="input-group-text" id="inputGroup-sizing-default">Status:</span>
+							<input id="status" type="text" class="form-control"
+								aria-label="Sizing example input"
+								aria-describedby="inputGroup-sizing-default">
+						</div>
+	
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary"
+								data-bs-dismiss="modal">Cancelar</button>
+							<button type="button" class="btn btn-primary" onclick="salvar()">Salvar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="modal fade" id="excluir" tabindex="-1"
+			aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-body">
+						<h3>Confirmar a exclusão?</h3>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
+							<button type="button" class="btn btn-success" onclick="excluirsim()">Sim</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	
+	
+		<script
+			src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+			crossorigin="anonymous"></script>
+	
+		<script>
+			//Carregar o formulario
+			const modal = new bootstrap.Modal('#formulario')
+			const modalexcluir = new bootstrap.Modal('#excluir')
+			listar();
+			idatual = -1;
+			
+			function listar(){
+				document.getElementById("resposta").innerHTML = "aguarde...carregando...";
+				let pesquisa = document.getElementById("pesquisa").value;
+				
+				fetch("../CompromissoAPI?pesquisa="+pesquisa)
+					.then(resp => resp.json())
+					.then(dados => mostrar(dados));
+			}
+			function mostrar(dados){
+				var tab = "<table class='table table-hover'>"
+							+ "<th>ID</th>"
+							+ "<th>Descrição</th>"
+							+ "<th>Data Inicial</th>"
+							+ "<th>Data Final</th>"
+							+ "<th>Local</th>"
+							+ "<th>Status</th>"
+							+ "<th></th>"
+							+ "<th></th>";
+							
+				for (i in dados){
+					tab += "<tr>" + "<td>" + dados[i].id + "</td>"
+					+ "<td>" + dados[i].descricao + "</td>"
+					+ "<td>" + dados[i].datainicio + "</td>"
+					+ "<td>" + dados[i].datafim + "</td>"
+					+ "<td>" + dados[i].local + "</td>"
+					+ "<td>" + dados[i].status + "</td>"
+					+ "<td> <a href='#' onclick='alterar("+dados[i].id+")'> <img src='imgs/edit.svg'></a> </td>"
+					+ "<td> <a href='#' onclick='excluir("+dados[i].id+")'> <img src='imgs/x-square.svg'> </a></td>"
+					+ "</tr>";
+				}
+		
+				tab += "</table>";
+				document.getElementById("resposta").innerHTML = tab;	
+			}
+			function novo(){
+				//chama a função que mostra o formulario
+				//limpar os valores do campo
+				idatual = -1;
+				document.getElementById("descricao").value = "";
+				document.getElementById("datainicio").value = "";
+				document.getElementById("datafim").value  = "";
+				document.getElementById("local").value  = "";
+				document.getElementById("status").value  = "";
+				modal.show();
+			}
+			
+			function salvar(){
+				//pega os valores digitados no campo
+				let compromisso = {};
+				compromisso.id = idatual;
+				compromisso.descricao = document.getElementById("descricao").value;
+				compromisso.datainicio = document.getElementById("datainicio").value;
+				compromisso.datafim = document.getElementById("datafim").value;
+				compromisso.local = document.getElementById("local").value;
+				compromisso.status = document.getElementById("status").value;
+				
+				//transforma o objeto pessoa em JSON
+				let body = JSON.stringify(compromisso);
+				let endereco = "../CompromissoAPI/";
+				let metodo = "POST";
+				if(idatual > 0){
+					endereco = "../CompromissoAPI/" +idatual;
+					metodo = "PUT";
+				}
+				//faz a requisição da API para inserir o JSON na lista 
+				fetch(endereco, 
+					{method: metodo, body: body}		
+				).then(resp => resp.json())
+				.then(function (resposta){
+					alert(resposta.mensagem);
+					//fecha o formulario
+					modal.hide();
+					//chama a função listar para recarregar a lista
+					listar();
+				});
+			}
+			function alterar(idPessoa){
+				idatual = idPessoa;
+				fetch("../CompromissoAPI/"+idPessoa)
+				.then(resp => resp.json())
+				.then(function (resp) {
+					document.getElementById("descricao").value = resp.descricao;
+					document.getElementById("datainicio").value = resp.datainicio;
+					document.getElementById("datafim").value = resp.datafim;
+					document.getElementById("local").value = resp.local;
+					document.getElementById("status").value = resp.status;
+				});
+				modal.show();
+				
+			}
+			function excluir(idPessoa){
+				modalexcluir.show();
+				idatual = idPessoa;
+			}
+			
+			function excluirsim(idPessoa){
+				//faz a requisição da API para inserir o JSON na lista 
+				fetch("../CompromissoAPI/"+idatual, 
+					{method: "DELETE"}		
+				).then(resp => resp.json())
+				.then(function (resposta){
+					alert(resposta.mensagem);
+					//chama a função listar para recarregar a lista
+					modalexcluir.hide();
+					listar();
+				});
+			}
+	
+		</script>
+	</body>
+</html>
